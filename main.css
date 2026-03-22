@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual Calculator Suite | Percentage & Standard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==================== CSS RESET & BASE ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        /* ==================== GLASSMORPHISM PANEL ==================== */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+        }
+
+        /* ==================== MAIN CONTAINER ==================== */
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 24px 32px;
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #a5b4fc, #c4b5fd, #f0abfc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        /* ==================== TWO COLUMN GRID ==================== */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+
+        @media (min-width: 1024px) {
+            .grid-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ==================== CALCULATOR PANELS ==================== */
+        .calc-panel {
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Percentage Calculator Specific */
+        .percent-calc {
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .percent-calc::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, #6366f1, #a855f7);
+        }
+
+        /* Standard Calculator Specific */
+        .standard-calc {
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== PANEL HEADER ==================== */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            color: #818cf8;
+        }
+
+        .percent-calc .icon {
+            color: #818cf8;
+        }
+
+        .clear-btn {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .clear-btn:hover {
+            color: white;
+        }
+
+        /* ==================== DISPLAY AREAS ==================== */
+        .display-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .display-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .display-main {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            word-break: break-all;
+        }
+
+        .display-formula {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #818cf8;
+            margin-top: 4px;
+            min-height: 16px;
+        }
+
+        .calc-display-box {
+            text-align: right;
+        }
+
+        .calc-previous {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: #64748b;
+            min-height: 24px;
+        }
+
+        .calc-current {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        /* ==================== INPUTS ==================== */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .label-indigo {
+            color: #818cf8;
+        }
+
+        .label-pink {
+            color: #ec4899;
+        }
+
+        .custom-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.125rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
+        }
+
+        .custom-input::placeholder {
+            color: #475569;
+        }
+
+        /* ==================== OPERATION BUTTONS ==================== */
+        .op-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .op-btn {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .op-btn:hover {
+            background: #334155;
+        }
+
+        .op-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        /* ==================== CALCULATE BUTTON ==================== */
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, #4f46e5, #9333ea);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+            transition: all 0.2s;
+            margin-bottom: 24px;
+        }
+
+        .calculate-btn:hover {
+            background: linear-gradient(to right, #6366f1, #a855f7);
+            transform: scale(1.02);
+        }
+
+        .calculate-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ==================== CHAIN HISTORY ==================== */
+        .chain-section {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+        }
+
+        .chain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .chain-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        .reset-btn {
+            font-size: 0.75rem;
+            color: #f43f5e;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .reset-btn:hover {
+            color: #fb7185;
+        }
+
+        .chain-list {
+            max-height: 160px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .chain-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .chain-left {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chain-num {
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chain-base {
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        .chain-op {
+            font-weight: 700;
+        }
+
+        .op-add { color: #34d399; }
+        .op-subtract { color: #f43f5e; }
+        .op-multiply { color: #fbbf24; }
+        .op-divide { color: #22d3ee; }
+
+        .chain-percent {
+            color: #818cf8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chain-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chain-eq {
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+
+        .chain-result {
+            color: #34d399;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        .chain-remove {
+            color: #f43f5e;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: 0 4px;
+        }
+
+        .chain-remove:hover {
+            color: #fb7185;
+        }
+
+        .empty-chain {
+            text-align: center;
+            color: #475569;
+            font-size: 0.875rem;
+            font-style: italic;
+            padding: 16px;
+        }
+
+        .chain-total {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #334155;
+            display: none;
+        }
+
+        .chain-total.show {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+
+        .total-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #34d399;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ==================== STANDARD CALCULATOR KEYPAD ==================== */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .calc-btn {
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 1.25rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calc-btn:hover {
+            background: rgba(71, 85, 105, 0.9);
+        }
+
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
+
+        .calc-btn.ac {
+            color: #f43f5e;
+            grid-column: span 2;
+            font-weight: 700;
+        }
+
+        .calc-btn.del {
+            color: #cbd5e1;
+            font-weight: 700;
+        }
+
+        .calc-btn.operator {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            border-color: rgba(99, 102, 241, 0.3);
+            font-weight: 700;
+        }
+
+        .calc-btn.operator:hover {
+            background: rgba(99, 102, 241, 0.3);
+        }
+
+        .calc-btn.equals {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            border: none;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .calc-btn.equals:hover {
+            filter: brightness(1.1);
+        }
+
+        .calc-btn.zero {
+            grid-column: span 2;
+        }
+
+        /* ==================== CALC HISTORY ==================== */
+        .calc-history-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+        }
+
+        .calc-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .calc-history-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        .clear-history-btn {
+            font-size: 0.75rem;
+            color: #64748b;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .clear-history-btn:hover {
+            color: white;
+        }
+
+        .calc-history-list {
+            max-height: 96px;
+            overflow-y: auto;
+            text-align: right;
+        }
+
+        .history-item-calc {
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+        }
+
+        .empty-calc-history {
+            color: #475569;
+            font-size: 0.75rem;
+            font-style: italic;
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* ==================== PRESETS ==================== */
+        .presets {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .presets-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .preset-btn {
+            background: #334155;
+            color: #94a3b8;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: #475569;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Container -->
+    <main class="glass-panel main-container">
+        
+        <!-- Header -->
+        <header class="header">
+            <h1>Dual Calculator Suite</h1>
+            <p>Advanced Percentage Engine & Standard Calculator</p>
+        </header>
+
+        <!-- Two Column Layout -->
+        <div class="grid-container">
+            
+            <!-- LEFT SIDE: Percentage Calculator -->
+            <div class="glass-panel calc-panel percent-calc">
+                
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        Percentage Calculator
+                    </h2>
+                    <button class="clear-btn" onclick="clearPercentage()">Clear All</button>
+                </div>
+
+                <!-- Display Area -->
+                <div class="display-box">
+                    <div class="display-label">Current Calculation</div>
+                    <div id="percentDisplay" class="display-main">0</div>
+                    <div id="percentFormula" class="display-formula"></div>
+                </div>
+
+                <!-- Inputs -->
+                <div class="input-group">
+                    <label class="input-label label-indigo">Base Value</label>
+                    <input type="number" id="baseValue" class="custom-input" placeholder="Enter base number" onkeydown="if(event.key==='Enter')calculatePercentage()">
+                </div>
+
+                <!-- Operation Buttons -->
+                <div class="op-grid">
+                    <button onclick="setPercentOp('add')" id="p-btn-add" class="op-btn active">+</button>
+                    <button onclick="setPercentOp('subtract')" id="p-btn-subtract" class="op-btn">−</button>
+                    <button onclick="setPercentOp('multiply')" id="p-btn-multiply" class="op-btn">×</button>
+                    <button onclick="setPercentOp('divide')" id="p-btn-divide" class="op-btn">÷</button>
+                </div>
+
+                <!-- Percentage Input -->
+                <div class="input-group">
+                    <label class="input-label label-pink">Percentage (%)</label>
+                    <input type="number" id="percentValue" class="custom-input" placeholder="Enter percentage" onkeydown="if(event.key==='Enter')calculatePercentage()">
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="presets">
+                    <span class="presets-label">Quick:</span>
+                    <button class="preset-btn" onclick="setPreset(10)">10%</button>
+                    <button class="preset-btn" onclick="setPreset(25)">25%</button>
+                    <button class="preset-btn" onclick="setPreset(50)">50%</button>
+                    <button class="preset-btn" onclick="setPreset(100)">100%</button>
+                </div>
+
+                <!-- Calculate Button -->
+                <button onclick="calculatePercentage()" class="calculate-btn">
+                    Calculate & Chain
+                </button>
+
+                <!-- Chain History -->
+                <div class="chain-section">
+                    <div class="chain-header">
+                        <h3 class="chain-title">Calculation Chain</h3>
+                        <button class="reset-btn" onclick="resetChain()">Reset Chain</button>
+                    </div>
+                    <div id="chainList" class="chain-list">
+                        <div class="empty-chain" id="emptyChain">Start calculating to build a chain</div>
+                    </div>
+                    <div id="chainTotal" class="chain-total">
+                        <span class="total-label">Running Total:</span>
+                        <span id="runningTotal" class="total-value">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Standard Calculator -->
+            <div class="glass-panel calc-panel standard-calc">
+                
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        Standard Calculator
+                    </h2>
+                </div>
+
+                <!-- Calculator Display -->
+                <div class="display-box calc-display-box">
+                    <div id="calcPrevious" class="calc-previous"></div>
+                    <div id="calcDisplay" class="calc-current">0</div>
+                </div>
+
+                <!-- Calculator Keypad -->
+                <div class="keypad">
+                    <button onclick="clearCalc()" class="calc-btn ac">AC</button>
+                    <button onclick="deleteLast()" class="calc-btn del">DEL</button>
+                    <button onclick="appendOperator('/')" class="calc-btn operator">÷</button>
+
+                    <button onclick="appendNumber('7')" class="calc-btn">7</button>
+                    <button onclick="appendNumber('8')" class="calc-btn">8</button>
+                    <button onclick="appendNumber('9')" class="calc-btn">9</button>
+                    <button onclick="appendOperator('*')" class="calc-btn operator">×</button>
+
+                    <button onclick="appendNumber('4')" class="calc-btn">4</button>
+                    <button onclick="appendNumber('5')" class="calc-btn">5</button>
+                    <button onclick="appendNumber('6')" class="calc-btn">6</button>
+                    <button onclick="appendOperator('-')" class="calc-btn operator">−</button>
+
+                    <button onclick="appendNumber('1')" class="calc-btn">1</button>
+                    <button onclick="appendNumber('2')" class="calc-btn">2</button>
+                    <button onclick="appendNumber('3')" class="calc-btn">3</button>
+                    <button onclick="appendOperator('+')" class="calc-btn operator">+</button>
+
+                    <button onclick="appendNumber('0')" class="calc-btn zero">0</button>
+                    <button onclick="appendNumber('.')" class="calc-btn">.</button>
+                    <button onclick="calculate()" class="calc-btn equals">=</button>
+                </div>
+
+                <!-- History -->
+                <div class="calc-history-section">
+                    <div class="calc-history-header">
+                        <h3 class="calc-history-title">Recent Results</h3>
+                        <button class="clear-history-btn" onclick="clearCalcHistory()">Clear</button>
+                    </div>
+                    <div id="calcHistory" class="calc-history-list">
+                        <div class="empty-calc-history">No calculations yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ==================== PERCENTAGE CALCULATOR LOGIC ====================
+        
+        let percentOperation = 'add';
+        let chain = [];
+        let runningTotal = 0;
+
+        const percentOps = {
+            add: { symbol: '+', class: 'op-add' },
+            subtract: { symbol: '-', class: 'op-subtract' },
+            multiply: { symbol: '×', class: 'op-multiply' },
+            divide: { symbol: '÷', class: 'op-divide' }
+        };
+
+        function setPercentOp(op) {
+            percentOperation = op;
+            document.querySelectorAll('.op-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('p-btn-' + op).classList.add('active');
+            updatePercentDisplay();
+        }
+
+        function formatNum(num) {
+            if (Number.isInteger(num)) return num.toString();
+            return parseFloat(num.toFixed(4)).toString();
+        }
+
+        function setPreset(val) {
+            document.getElementById('percentValue').value = val;
+            updatePercentDisplay();
+        }
+
+        function calculatePercentage() {
+            const baseInput = document.getElementById('baseValue');
+            const percentInput = document.getElementById('percentValue');
+            
+            const base = parseFloat(baseInput.value);
+            const percent = parseFloat(percentInput.value);
+
+            if (isNaN(base) || isNaN(percent)) {
+                alert('Please enter valid numbers');
+                return;
+            }
+
+            let result = 0;
+            let percentValue = 0;
+
+            switch(percentOperation) {
+                case 'add':
+                    percentValue = base * (percent / 100);
+                    result = base + percentValue;
+                    break;
+                case 'subtract':
+                    percentValue = base * (percent / 100);
+                    result = base - percentValue;
+                    break;
+                case 'multiply':
+                    percentValue = percent / 100;
+                    result = base * percentValue;
+                    break;
+                case 'divide':
+                    if (percent === 0) {
+                        alert('Cannot divide by zero');
+                        return;
+                    }
+                    percentValue = percent / 100;
+                    result = base / percentValue;
+                    break;
+            }
+
+            const chainItem = {
+                base: base,
+                percent: percent,
+                op: percentOperation,
+                result: result
+            };
+
+            chain.push(chainItem);
+            runningTotal = chain.reduce((sum, item) => sum + item.result, 0);
+            
+            renderChain();
+            
+            baseInput.value = formatNum(result);
+            percentInput.value = '';
+            percentInput.focus();
+            
+            updatePercentDisplay();
+        }
+
+        function renderChain() {
+            const list = document.getElementById('chainList');
+            const totalDiv = document.getElementById('chainTotal');
+            
+            if (chain.length === 0) {
+                list.innerHTML = '<div class="empty-chain" id="emptyChain">Start calculating to build a chain</div>';
+                totalDiv.classList.remove('show');
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < chain.length; i++) {
+                const item = chain[i];
+                html += '<div class="chain-item">' +
+                    '<div class="chain-left">' +
+                        '<span class="chain-num">' + (i + 1) + '.</span>' +
+                        '<span class="chain-base">' + formatNum(item.base) + '</span>' +
+                        '<span class="chain-op ' + percentOps[item.op].class + '">' + percentOps[item.op].symbol + '</span>' +
+                        '<span class="chain-percent">' + item.percent + '%</span>' +
+                    '</div>' +
+                    '<div class="chain-right">' +
+                        '<span class="chain-eq">=</span>' +
+                        '<span class="chain-result">' + formatNum(item.result) + '</span>' +
+                        '<button class="chain-remove" onclick="removeFromChain(' + i + ')">×</button>' +
+                    '</div>' +
+                '</div>';
+            }
+            
+            list.innerHTML = html;
+            totalDiv.classList.add('show');
+            document.getElementById('runningTotal').textContent = formatNum(runningTotal);
+        }
+
+        function removeFromChain(index) {
+            chain.splice(index, 1);
+            runningTotal = chain.reduce((sum, item) => sum + item.result, 0);
+            renderChain();
+        }
+
+        function resetChain() {
+            chain = [];
+            runningTotal = 0;
+            document.getElementById('baseValue').value = '';
+            document.getElementById('percentValue').value = '';
+            renderChain();
+            updatePercentDisplay();
+        }
+
+        function clearPercentage() {
+            resetChain();
+        }
+
+        function updatePercentDisplay() {
+            const base = document.getElementById('baseValue').value || '0';
+            const percent = document.getElementById('percentValue').value || '0';
+            
+            document.getElementById('percentDisplay').textContent = base + ' ' + percentOps[percentOperation].symbol + ' ' + percent + '%';
+            document.getElementById('percentFormula').textContent = 'Press Calculate to execute';
+        }
+
+        // ==================== STANDARD CALCULATOR LOGIC ====================
+        
+        let calcDisplay = '0';
+        let calcPrevious = '';
+        let calcOperation = null;
+        let calcResetNext = false;
+        let calcHistory = [];
+
+        function updateCalcDisplay() {
+            document.getElementById('calcDisplay').textContent = calcDisplay;
+            document.getElementById('calcPrevious').textContent = calcPrevious;
+        }
+
+        function appendNumber(num) {
+            if (calcResetNext) {
+                calcDisplay = num;
+                calcResetNext = false;
+            } else {
+                calcDisplay = calcDisplay === '0' ? num : calcDisplay + num;
+            }
+            updateCalcDisplay();
+        }
+
+        function appendOperator(op) {
+            if (calcOperation !== null && !calcResetNext) {
+                calculate();
+            }
+            calcPrevious = calcDisplay + ' ' + op;
+            calcOperation = op;
+            calcResetNext = true;
+            updateCalcDisplay();
+        }
+
+        function calculate() {
+            if (calcOperation === null || calcResetNext) return;
+            
+            const prev = parseFloat(calcPrevious);
+            const current = parseFloat(calcDisplay);
+            let result = 0;
+
+            switch(calcOperation) {
+                case '+': result = prev + current; break;
+                case '-': result = prev - current; break;
+                case '*': result = prev * current; break;
+                case '/': 
+                    if (current === 0) {
+                        alert('Cannot divide by zero');
+                        return;
+                    }
+                    result = prev / current; 
+                    break;
+            }
+
+            calcHistory.unshift(prev + ' ' + calcOperation + ' ' + current + ' = ' + result);
+            if (calcHistory.length > 5) calcHistory.pop();
+            renderCalcHistory();
+
+            calcDisplay = formatNum(result);
+            calcPrevious = '';
+            calcOperation = null;
+            calcResetNext = true;
+            updateCalcDisplay();
+        }
+
+        function clearCalc() {
+            calcDisplay = '0';
+            calcPrevious = '';
+            calcOperation = null;
+            calcResetNext = false;
+            updateCalcDisplay();
+        }
+
+        function deleteLast() {
+            if (calcDisplay.length > 1) {
+                calcDisplay = calcDisplay.slice(0, -1);
+            } else {
+                calcDisplay = '0';
+            }
+            updateCalcDisplay();
+        }
+
+        function renderCalcHistory() {
+            const historyDiv = document.getElementById('calcHistory');
+            if (calcHistory.length === 0) {
+                historyDiv.innerHTML = '<div class="empty-calc-history">No calculations yet</div>';
+                return;
+            }
+            
+            let html = '';
+            for (let item of calcHistory) {
+                html += '<div class="history-item-calc">' + item + '</div>';
+            }
+            historyDiv.innerHTML = html;
+        }
+
+        function clearCalcHistory() {
+            calcHistory = [];
+            renderCalcHistory();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            
+            const key = e.key;
+            if (/[0-9]/.test(key)) appendNumber(key);
+            if (key === '.') appendNumber('.');
+            if (key === '+' || key === '-' || key === '*' || key === '/') appendOperator(key);
+            if (key === 'Enter' || key === '=') calculate();
+            if (key === 'Escape') clearCalc();
+            if (key === 'Backspace') deleteLast();
+        });
+
+        // Initialize
+        updatePercentDisplay();
+        updateCalcDisplay();
+    </script>
+
+</body>
+</html>
